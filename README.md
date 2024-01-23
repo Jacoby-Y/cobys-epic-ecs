@@ -2,6 +2,15 @@
 
 A barebones Entity Component System made to work well with [cobys-epic-engine](https://github.com/Jacoby-Y/cobys-epic-engine)
 
+Checkout a demo [here](https://github.com/Jacoby-Y/cobys-epic-platformer-demo/)
+
+___
+
+#### Roadmap:
+- [ ] Create a bunch of built-in components and systems
+    - [ ] Tilemap
+    - [ ] Colliders
+
 ___
 
 #### Add To Project
