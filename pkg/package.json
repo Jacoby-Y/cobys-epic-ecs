@@ -1,0 +1,38 @@
+{
+  "type": "module",
+  "name": "cobys-epic-ecs",
+  "version": "0.1.0",
+  "description": "A barebones ECS",
+  "main": "index.js",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./component": {
+      "types": "./component/index.d.ts",
+      "default": "./component/index.js"
+    },
+    "./entity": {
+      "types": "./entity/index.d.ts",
+      "default": "./entity/index.js"
+    },
+    "./resource": {
+      "types": "./resource/index.d.ts",
+      "default": "./resource/index.js"
+    },
+    "./scoreboard": {
+      "types": "./scoreboard/index.d.ts",
+      "default": "./scoreboard/index.js"
+    },
+    "./system": {
+      "types": "./system/index.d.ts",
+      "default": "./system/index.js"
+    }
+  },
+  "types": "index.d.ts",
+  "keywords": [],
+  "author": "Jacoby-Y",
+  "license": "MIT"
+}

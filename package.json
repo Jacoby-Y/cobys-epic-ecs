@@ -1,0 +1,15 @@
+{
+  "type": "module",
+  "name": "cobys-epic-ecs-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo for cobys-epic-ecs",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "Jacoby-Y",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
