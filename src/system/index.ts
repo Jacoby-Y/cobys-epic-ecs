@@ -8,13 +8,13 @@ type BulkSystemFunc = (...comps: any[][])=> void;
 type Systems = Record<string, SystemFunc[]>;
 type BulkSystems = Record<string, BulkSystemFunc[]>;
 
-type ClassInstance = new (...args: any[])=> any;
+type ClassType = new (...args: any[])=> any;
 
 const systems: Systems = {}
 const bulk_systems: BulkSystems = {}
 
 
-export function addSystem(component_classes: ClassInstance[], systemFunc: SystemFunc) {
+export function addSystem(component_classes: ClassType[], systemFunc: SystemFunc) {
     const component_names = component_classes.map(cls => cls.name);
     
     const key = component_names.join("|");
@@ -23,7 +23,7 @@ export function addSystem(component_classes: ClassInstance[], systemFunc: System
     systems[key].push(systemFunc);
 }
 
-export function addBulkSystem(component_classes: ClassInstance[], systemFunc: BulkSystemFunc) {
+export function addBulkSystem(component_classes: ClassType[], systemFunc: BulkSystemFunc) {
     const component_names = component_classes.map(cls => cls.name);
     
     const key = component_names.join("|");

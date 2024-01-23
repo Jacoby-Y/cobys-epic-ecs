@@ -6,4 +6,6 @@ Hey guys, I made that ECS thing. Kinda epic.
 ```bash
 npm i
 npm run build
+
+# Will compile and build NPM package in /pkg
 ```

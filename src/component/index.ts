@@ -31,8 +31,11 @@ export class RigidBody extends Component {
     }
 
     movePosition(pos: Position, mult = 1) {
-        pos.x += this.vx * this.drag_x * mult;
-        pos.y += this.vy * this.drag_y * mult;
+        pos.x += this.vx * mult;
+        pos.y += this.vy * mult;
+
+        this.vx *= this.drag_x;
+        this.vy *= this.drag_y;
     }
 
     addForce(angle: number, force: number) {

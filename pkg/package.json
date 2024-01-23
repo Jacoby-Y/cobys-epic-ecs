@@ -10,6 +10,10 @@
       "types": "./index.d.ts",
       "default": "./index.js"
     },
+    "./ceon": {
+      "types": "./ceon/index.d.ts",
+      "default": "./ceon/index.js"
+    },
     "./component": {
       "types": "./component/index.d.ts",
       "default": "./component/index.js"

@@ -1,5 +1,5 @@
 
-type ClassInstance = new (...args: any[])=> any;
+type ClassType = new (...args: any[])=> any;
 
 
 const scoreboards: Record<string, object> = {};
@@ -18,7 +18,7 @@ export function setScoreboardObj(name: string, obj: object) {
     scoreboards[name] = obj;
 }
 
-export function getScoreboard<T = any>(arg: string | ClassInstance): T {
+export function getScoreboard<T = any>(arg: string | ClassType): T {
 
     const name = (typeof arg == "string" ? arg : arg.name);
 

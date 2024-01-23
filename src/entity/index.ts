@@ -1,33 +1,17 @@
 import Component, { Position, RigidBody } from "../component/index.js";
 
-console.clear();
-
 type Components = Record<string, Component[]>;
 type ComponentCache = Record<string, Record<string, Component[]>>;
-type ClassInstance = new (...args: any[])=> any;
+type ClassType = new (...args: any[])=> any;
 
 
 let entity_counter = 0;
 const component_arrays: Components = {}
-const component_cache: ComponentCache = {}
+let component_cache: ComponentCache = {}
 
 
 /** Create entity by giving component name and data one after another */
 export function addEntity(...components: Component[]) {
-    // if (component_parts.length % 2 != 0) throw "<addEntity()> Param amount must be odd";
-
-    // for (let i = 0; i < component_parts.length; i += 2) {
-    //     const [name, data] = [component_parts[i], component_parts[i + 1] as Component];
-        
-    //     if (typeof name != "string") throw "<addEntity()> Params must have a string (component name) in even indices";
-    //     if (typeof data == "string") throw "<addEntity()> Params must have an object (component data) in odd indices";
-    //     if (component_arrays[name] == undefined) component_arrays[name] = [];
-
-    //     data._id = entity_counter;
-
-    //     component_arrays[name].push(data);
-    // }
-
     for (let i = 0; i < components.length; i++) {
         const comp = components[i];
         const name = Object.getPrototypeOf(comp).constructor.name;
@@ -35,31 +19,35 @@ export function addEntity(...components: Component[]) {
         if (component_arrays[name] == undefined) component_arrays[name] = [];
 
         comp._id = entity_counter;
-
+        
         component_arrays[name].push(comp);
     }
+
+    component_cache = {};
 
     return entity_counter++;
 }
 
 const blankComponentQuery = (names: string[])=> names.map(_ => []);
-export function queryEntities(...instances: ClassInstance[] | string[]) {
+export function queryEntities(...instances: ClassType[] | string[]) {
     if (instances.length == 0) throw "<queryEntities()> Must give at least one param";
 
-    const names = typeof instances[0] == "string" ? (instances as string[]) : instances.map(i => (i as ClassInstance).name);
+    const names = typeof instances[0] == "string" ? (instances as string[]) : instances.map(i => (i as ClassType).name);
 
     if (names.length == 1) return [component_arrays[names[0]] ?? []];
 
-    const key = names.toSorted().join(":");
+    const key = names.toSorted().join("|");
 
     if (component_cache[key] != undefined) {
         const cache = component_cache[key];
         return names.map(name => cache[name]);
     }
 
-    const comps = names.map(name => component_arrays[name] ?? null);
+    const all_comps = names.map(name => component_arrays[name] ?? null);
 
-    if (comps.includes(null)) return blankComponentQuery(names);
+    if (all_comps.includes(null)) return blankComponentQuery(names);
+
+    const comps = all_comps.map(arr => [...arr]);
 
     lineupWithSmallest(comps);
 
@@ -105,6 +93,7 @@ function lineupWithSmallest(comps: Component[][], second_pass = false) {
 
 
 export function deleteEntity(id: number) {
+    console.info(`Deleting entity with id: "${id}"`);
     const all_components = Object.values(component_arrays);
 
     for (let i = 0; i < all_components.length; i++) {
@@ -121,4 +110,9 @@ function addToCache(names: string[]) {
 
 function removeFromCache(names: string[]) {
 
+}
+
+
+export function getEntity(id: number) {
+    return Object.values(component_arrays).map(arr => arr.find(c => c._id == id)).filter(comp => comp != undefined);
 }
