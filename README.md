@@ -7,6 +7,7 @@ Checkout a demo [here](https://github.com/Jacoby-Y/cobys-epic-platformer-demo/)
 ___
 
 #### Roadmap:
+- [ ] Easy way of adding/using resources (textures, audio, etc.)
 - [ ] Create a bunch of built-in components and systems
     - [ ] Tilemap
     - [ ] Colliders
