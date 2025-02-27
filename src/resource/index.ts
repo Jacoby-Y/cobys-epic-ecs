@@ -1,27 +1,31 @@
 
-type Textures = Record<string, HTMLImageElement>;
+type ClassType = new (...args: any[])=> any;
 
-const textures: Textures = {
 
+let resources: Record<string, object> = {};
+
+
+/** Give an instance of a class */
+export function setResource(instance: object) {
+    const name = Object.getPrototypeOf(instance).constructor.name;
+
+    if (name == "Object") throw "<setResource()> must be given an instance of a class, not an object literal";
+
+    resources[name] = instance;
 }
 
-
-export function addTexture(id: string, src: string | HTMLImageElement): HTMLImageElement {
-    if (typeof src == "string") {
-        const img = new Image();
-        img.src = src;
-        textures[id] = img;
-
-        img.onerror = ()=>{
-            console.error("Can't load image. ID: \"" + id + '"');
-        }
-    } else {
-        textures[id] = src;
-    }
-
-    return textures[id];
+export function setResourceObj(name: string, obj: object) {
+    resources[name] = obj;
 }
 
-export function getTexture(id: string) {
-    return textures[id];
+export function getResource<T extends new (...args: any[]) => any>(arg: T): InstanceType<T> {
+    return (resources[arg.name] ?? null) as InstanceType<T>;
+}
+
+export function getResourceObj<T = any>(arg: string): T {
+    return (resources[arg] ?? null) as T;
+}
+
+export function deleteResources() {
+    resources = {};
 }

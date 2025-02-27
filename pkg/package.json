@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "cobys-epic-ecs",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "A barebones ECS made to work with cobys-epic-engine",
   "main": "index.js",
   "exports": {
@@ -26,17 +26,41 @@
       "types": "./resource/index.d.ts",
       "default": "./resource/index.js"
     },
-    "./scoreboard": {
-      "types": "./scoreboard/index.d.ts",
-      "default": "./scoreboard/index.js"
+    "./scene": {
+      "types": "./scene/index.d.ts",
+      "default": "./scene/index.js"
     },
     "./system": {
       "types": "./system/index.d.ts",
       "default": "./system/index.js"
+    },
+    "./batteries": {
+      "types": "./batteries/index.d.ts",
+      "default": "./batteries/index.js"
+    },
+    "./batteries-controller": {
+      "types": "./batteries/controller.d.ts",
+      "default": "./batteries/controller.js"
+    },
+    "./batteries-camera": {
+      "types": "./batteries/camera.d.ts",
+      "default": "./batteries/camera.js"
+    },
+    "./batteries-keyboard": {
+      "types": "./batteries/keyboard.d.ts",
+      "default": "./batteries/keyboard.js"
+    },
+    "./batteries-systems": {
+      "types": "./batteries/systems.d.ts",
+      "default": "./batteries/systems.js"
     }
   },
   "types": "index.d.ts",
   "keywords": [],
   "author": "Jacoby-Y",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "cobys-epic-engine": "^0.3.10",
+    "pixi.js": "7.4.0"
+  }
 }

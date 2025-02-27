@@ -1,4 +1,4 @@
-/node_modules
+node_modules
 /pkg/**/**.js
 /pkg/*.js
 /pkg/**/**.ts

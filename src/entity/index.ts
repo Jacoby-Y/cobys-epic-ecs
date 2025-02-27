@@ -6,8 +6,10 @@ type ClassType = new (...args: any[])=> any;
 
 
 let entity_counter = 0;
-const component_arrays: Components = {}
+let component_arrays: Components = {}
 let component_cache: ComponentCache = {}
+
+export let entity_updates: [number, Function][] = []
 
 
 /** Create entity by giving component name and data one after another */
@@ -25,14 +27,24 @@ export function addEntity(...components: Component[]) {
 
     component_cache = {};
 
-    return entity_counter++;
+    return {
+        id: entity_counter++,
+        start(func: (...components: Component[])=> void) {
+            func(...components);
+            return this;
+        },
+        update(func: (...components: Component[])=> void) {
+            entity_updates.push([this.id, ()=> func(...components)]);
+            return this;
+        }
+    }
 }
 
 const blankComponentQuery = (names: string[])=> names.map(_ => []);
-export function queryEntities(...instances: ClassType[] | string[]) {
-    if (instances.length == 0) throw "<queryEntities()> Must give at least one param";
+export function queryEntities(...args: ClassType[] | string[]) {
+    if (args.length == 0) throw "<queryEntities()> Must give at least one param";
 
-    const names = typeof instances[0] == "string" ? (instances as string[]) : instances.map(i => (i as ClassType).name);
+    const names = typeof args[0] == "string" ? (args as string[]) : args.map(i => (i as ClassType).name);
 
     if (names.length == 1) return [component_arrays[names[0]] ?? []];
 
@@ -93,15 +105,22 @@ function lineupWithSmallest(comps: Component[][], second_pass = false) {
 
 
 export function deleteEntity(id: number) {
-    console.info(`Deleting entity with id: "${id}"`);
     const all_components = Object.values(component_arrays);
+
+    const entity_update_index = entity_updates.findIndex((up => up[0] == id));
+    if (entity_update_index >= 0) entity_updates.splice(entity_update_index, 1);
 
     for (let i = 0; i < all_components.length; i++) {
         const components = all_components[i];
         
-        const idx = components.findIndex(({ _id })=> id == _id);
-        if (idx >= 0) components.splice(idx, 1);
+        const index = components.findIndex(({ _id })=> id == _id);
+        if (index >= 0) {
+            const [removed] = components.splice(index, 1);
+            removed.$onDestroy();
+        }
     }
+
+    component_cache = {}
 }
 
 function addToCache(names: string[]) {
@@ -115,4 +134,27 @@ function removeFromCache(names: string[]) {
 
 export function getEntity(id: number) {
     return Object.values(component_arrays).map(arr => arr.find(c => c._id == id)).filter(comp => comp != undefined);
+}
+
+export function getEntityObj(id: number) {
+    return Object.fromEntries(
+        Object
+            .values(component_arrays)
+            .map(arr => arr.find(c => c._id == id))
+            .filter(comp => comp != undefined)
+            .map(comp => [Object.getPrototypeOf(comp).constructor.name, comp])
+    );
+}
+
+export function deleteAllEntities() {
+    const all_components = Object.values(component_arrays).flat();
+
+    for (let i = 0; i < all_components.length; i++) {
+        const comp = all_components[i];
+        comp.$onDestroy();
+    }
+
+    component_arrays = {};
+    component_cache = {};
+    entity_updates = [];
 }

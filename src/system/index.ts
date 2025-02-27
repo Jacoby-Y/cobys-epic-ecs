@@ -1,20 +1,21 @@
-import { queryEntities } from "../entity/index.js";
+import { entity_updates, queryEntities } from "../entity/index.js";
 import Component from "../component/index.js";
 
 
-type SystemFunc = (...comps: any[])=> void;
+// type SystemFunc = (...comps: any[])=> void;
+type SystemFunc<T extends any[]> = (...comps: T) => void;
 type BulkSystemFunc = (...comps: any[][])=> void;
 
-type Systems = Record<string, SystemFunc[]>;
+type Systems = Record<string, SystemFunc<any>[]>;
 type BulkSystems = Record<string, BulkSystemFunc[]>;
 
-type ClassType = new (...args: any[])=> any;
+type ClassType<T = any> = new (...args: any[]) => T;
+// type ClassType = new (...args: any[])=> any;
 
-const systems: Systems = {}
+export const systems: Systems = {}
 const bulk_systems: BulkSystems = {}
 
-
-export function addSystem(component_classes: ClassType[], systemFunc: SystemFunc) {
+export function addSystem<T extends ClassType[]>(component_classes: [...T], systemFunc: SystemFunc<{ [K in keyof T]: InstanceType<T[K]> }>) {
     const component_names = component_classes.map(cls => cls.name);
     
     const key = component_names.join("|");
@@ -34,6 +35,11 @@ export function addBulkSystem(component_classes: ClassType[], systemFunc: BulkSy
 
 
 export function runAllSystems() {
+    for (let i = 0; i < entity_updates.length; i++) {
+        const [_, func] = entity_updates[i];
+        func();
+    }
+
     const keys = Object.keys(systems).map(key => key.split("|"));
     const bulk_keys = Object.keys(bulk_systems).map(key => key.split("|"));
 
