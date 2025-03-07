@@ -2,7 +2,8 @@ import Component, { Position, RigidBody } from "../component/index.js";
 
 type Components = Record<string, Component[]>;
 type ComponentCache = Record<string, Record<string, Component[]>>;
-type ClassType = new (...args: any[])=> any;
+type ClassType<T = any> = new (...args: any[]) => T;
+// type ClassType = new (...args: any[])=> any;
 
 
 let entity_counter = 0;
@@ -13,7 +14,7 @@ export let entity_updates: [number, Function][] = []
 
 
 /** Create entity by giving component name and data one after another */
-export function addEntity(...components: Component[]) {
+export function addEntity<T extends Component[]>(...components: T) {
     for (let i = 0; i < components.length; i++) {
         const comp = components[i];
         const name = Object.getPrototypeOf(comp).constructor.name;
@@ -29,23 +30,29 @@ export function addEntity(...components: Component[]) {
 
     return {
         id: entity_counter++,
-        start(func: (...components: Component[])=> void) {
+        start(func: (...components: T)=> void) {
             func(...components);
             return this;
         },
-        update(func: (...components: Component[])=> void) {
+        update(func: (...components: T)=> void) {
             entity_updates.push([this.id, ()=> func(...components)]);
             return this;
         }
     }
 }
 
+// <T extends ClassType[]>(component_classes: [...T], systemFunc: SystemFunc<{ [K in keyof T]: InstanceType<T[K]> }>) {
 const blankComponentQuery = (names: string[])=> names.map(_ => []);
-export function queryEntities(...args: ClassType[] | string[]) {
+export function queryEntities<T extends ClassType[]>(...args: [...T]): { [K in keyof T]: InstanceType<T[K]>[] } {
     if (args.length == 0) throw "<queryEntities()> Must give at least one param";
 
-    const names = typeof args[0] == "string" ? (args as string[]) : args.map(i => (i as ClassType).name);
+    const names = args.map(i => (i as ClassType).name);
+    
+    //@ts-ignore
+    return queryEntitiesNames(...names);
+}
 
+export function queryEntitiesNames(...names: string[]) {
     if (names.length == 1) return [component_arrays[names[0]] ?? []];
 
     const key = names.toSorted().join("|");

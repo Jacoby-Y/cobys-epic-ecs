@@ -14,6 +14,10 @@ const on_load_scene: Record<string, Function[]> = {}
 
 let cleanup_functions: Function[] = [];
 
+/** Scene currently initializing */
+let initializing_scene: string = null;
+let scene_updaters: [string, Function][] = []
+
 
 export function addSceneLoader(id: string, func: Function, args?: any[]) {
     if (scenes[id] == undefined) scenes[id] = [];
@@ -28,15 +32,18 @@ export function loadScene(id: string, delete_entities = true) {
     if (delete_entities) {
         deleteAllEntities();
         deleteResources();
+        scene_updaters = [];
     }
 
     runPreloads(id);
 
     let cleanups: Function[] = [];
+    initializing_scene = id;
     for (let i = 0; i < scenes[id].length; i++) {
         const res = scenes[id][i]();
         if (typeof res == "function") cleanups.push(res);
     }
+    initializing_scene = null;
 
     if (delete_entities) {
         for (let i = 0; i < cleanup_functions.length; i++) {
@@ -44,6 +51,8 @@ export function loadScene(id: string, delete_entities = true) {
         }
 
         cleanup_functions = cleanups;
+    } else {
+        cleanup_functions.push(...cleanups);
     }
 
     runLoads(id);
@@ -62,6 +71,18 @@ export function onSceneLoad(id: string | null, func: Function) {
     else {
         if (on_load_scene[id] == undefined) on_load_scene[id] = [];
         on_load_scene[id].push(func);
+    }
+}
+
+export function addSceneUpdater(func: Function) {
+    if (!initializing_scene) throw "Invalid or non-present scene currently initializing";
+
+    scene_updaters.push([initializing_scene, func]);
+}
+
+export function runSceneUpdaters() {
+    for (let i = 0; i < scene_updaters.length; i++) {
+        scene_updaters[i][1]();
     }
 }
 

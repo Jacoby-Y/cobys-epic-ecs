@@ -1,4 +1,4 @@
-import { entity_updates, queryEntities } from "../entity/index.js";
+import { entity_updates, queryEntities, queryEntitiesNames } from "../entity/index.js";
 import Component from "../component/index.js";
 
 
@@ -45,14 +45,14 @@ export function runAllSystems() {
 
     for (let i = 0; i < keys.length; i++) {
         const component_names = keys[i];
-        const components = queryEntities(...component_names);
+        const components = queryEntitiesNames(...component_names);
         const key = component_names.join("|");
         runSystem(key, components);
     }
 
     for (let i = 0; i < bulk_keys.length; i++) {
         const component_names = bulk_keys[i];
-        const components = queryEntities(...component_names);
+        const components = queryEntitiesNames(...component_names);
         const key = component_names.join("|");
         runBulkSystem(key, components);
     }

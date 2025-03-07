@@ -1,7 +1,7 @@
 import { BodyCollider, Box, Controlled, Position, StaticCollider, Velocity, Animation, Timer } from "../component";
 import { queryEntities } from "../entity";
 import { addSystem } from "../system";
-import { Draw, delta_time } from "./pixi";
+import { Draw, DrawGroup, camera, delta_time } from "./pixi";
 
 
 export function initSystems() {
@@ -10,9 +10,16 @@ export function initSystems() {
     });
     
     addSystem([Position, Draw], (pos: Position, draw: Draw)=>{
-        const [x, y] = draw.ctx.camera.getOffset(pos);
+        const [x, y] = camera.getOffset(pos);
     
         draw.setPosition(x, y);
+    });
+
+    addSystem([Position, DrawGroup], (pos: Position, group: DrawGroup)=>{
+        group.eachDraw((draw)=>{
+            const [x, y] = camera.getOffset(pos);
+            draw.setPosition(x, y);
+        });
     });
     
     addSystem([Position, Controlled], (pos: Position, con: Controlled)=>{

@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "cobys-epic-ecs",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A barebones ECS made to work with cobys-epic-engine",
   "main": "index.js",
   "exports": {
@@ -38,17 +38,25 @@
       "types": "./batteries/index.d.ts",
       "default": "./batteries/index.js"
     },
-    "./batteries-controller": {
-      "types": "./batteries/controller.d.ts",
-      "default": "./batteries/controller.js"
-    },
     "./batteries-camera": {
       "types": "./batteries/camera.d.ts",
       "default": "./batteries/camera.js"
     },
+    "./batteries-controller": {
+      "types": "./batteries/controller.d.ts",
+      "default": "./batteries/controller.js"
+    },
+    "./batteries-devart": {
+      "types": "./batteries/devart.d.ts",
+      "default": "./batteries/devart.js"
+    },
     "./batteries-keyboard": {
       "types": "./batteries/keyboard.d.ts",
       "default": "./batteries/keyboard.js"
+    },
+    "./batteries-pixi": {
+      "types": "./batteries/pixi.d.ts",
+      "default": "./batteries/pixi.js"
     },
     "./batteries-systems": {
       "types": "./batteries/systems.d.ts",
