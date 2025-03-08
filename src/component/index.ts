@@ -6,6 +6,7 @@ export default class Component {
     ) { }
 
     $onDestroy() {}
+    $reconstruct(...args: any[]): Component | void {}
 }
 
 
@@ -15,6 +16,13 @@ export class Position extends Component {
         public y: number = 0,
     ) {
         super();
+    }
+
+    $reconstruct(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+
+        return this;
     }
 }
 
@@ -90,6 +98,23 @@ export class Box extends Component {
         this.off_x = x;
         this.off_y = y;
         
+        return this;
+    }
+
+    $reconstruct(
+        width: number,
+        height: number,
+        color: string | null = null,
+        enabled = true
+    ) {
+        this.width = width;
+        this.height = height;
+        this.color = color;
+        this.enabled = enabled;
+
+        this.off_x = 0;
+        this.off_y = 0;
+
         return this;
     }
 }

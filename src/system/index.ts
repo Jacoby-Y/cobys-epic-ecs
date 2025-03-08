@@ -33,7 +33,6 @@ export function addBulkSystem(component_classes: ClassType[], systemFunc: BulkSy
     bulk_systems[key].push(systemFunc);
 }
 
-
 export function runAllSystems() {
     for (let i = 0; i < entity_updates.length; i++) {
         const [_, func] = entity_updates[i];
@@ -55,6 +54,30 @@ export function runAllSystems() {
         const components = queryEntitiesNames(...component_names);
         const key = component_names.join("|");
         runBulkSystem(key, components);
+    }
+}
+
+export function prerunEntitySystems<T extends Component[]>(components: T) {
+    const entries = components.map(c => [Object.getPrototypeOf(c).constructor.name, c]);
+    const map = Object.fromEntries(entries);
+    const names = new Set(entries.map(v => v[0]));
+
+    const system_keys = Object.keys(systems).map(v => v.split("|"));
+
+    outer:
+    for (let i = 0; i < system_keys.length; i++) {
+        const keys = system_keys[i];
+        
+        for (let j = 0; j < keys.length; j++) {
+            if (!names.has(keys[j])) continue outer;
+        }
+
+        const args = keys.map(key => map[key]);
+
+        let funcs = systems[keys.join("|")];
+        for (let j = 0; j < funcs.length; j++) {
+            funcs[j](...args);
+        }
     }
 }
 

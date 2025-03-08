@@ -1,32 +1,83 @@
-import Component, { Position, RigidBody } from "../component/index.js";
+import Component from "../component/index.js";
+import { prerunEntitySystems } from "../system/index.js";
 
 type Components = Record<string, Component[]>;
 type ComponentCache = Record<string, Record<string, Component[]>>;
 type ClassType<T = any> = new (...args: any[]) => T;
-// type ClassType = new (...args: any[])=> any;
-
 
 let entity_counter = 0;
 let component_arrays: Components = {}
 let component_cache: ComponentCache = {}
+let component_pools = new Set<string>();
+
 
 export let entity_updates: [number, Function][] = []
 
 
+type CompArgs<T extends Component> = ConstructorParameters<CompCon<T>>;
+type Reassigner<T extends Component = Component> = [CompCon<T>, CompArgs<T>];
+type CompCon<T extends Component = Component> = new (...args: any[]) => T;
+export function reassign<T extends Component>(Class: CompCon<T>, ...args: CompArgs<T>): Reassigner<T> {
+    component_pools.add(Class.name);
+    return [Class, args];
+}
+
 /** Create entity by giving component name and data one after another */
-export function addEntity<T extends Component[]>(...components: T) {
+export function addEntity<T extends (Component|Reassigner)[]>(...components: T) {
+    let result_components: Component[] = [];
+
     for (let i = 0; i < components.length; i++) {
         const comp = components[i];
-        const name = Object.getPrototypeOf(comp).constructor.name;
+        let name: string;
+        let reassign = false;
+
+        if (comp instanceof Component) {
+            name = Object.getPrototypeOf(comp).constructor.name;
+        } else {
+            name = (comp as Reassigner)[0].name;
+            reassign = true;
+        }
 
         if (component_arrays[name] == undefined) component_arrays[name] = [];
 
-        comp._id = entity_counter;
+        // comp._id = entity_counter;
         
-        component_arrays[name].push(comp);
+        let assigned = false;
+        if (reassign && component_pools.has(name)) {
+            for (let i = component_arrays[name].length-1; i >= 0; i--) {
+                const old = component_arrays[name][i];
+                if (old._id < 0) {
+                    old._id = entity_counter;
+                    const args = (comp as Reassigner)[1];
+                    assigned = !!old.$reconstruct(...args);
+
+                    if (!assigned) {
+                        console.error("Trying to reassign component when $reconstruct function isn't defined or doesn't return \"this\"");
+                        old._id = -1;
+                    } else {
+                        result_components.push(old);
+                    }
+                    break;
+                }
+            }
+        } 
+        if (!assigned) {
+            if (reassign) {
+                const [cls, args] = (comp as Reassigner);
+                component_arrays[name].push(new cls(...args));
+            } else {
+                component_arrays[name].push(comp as Component);
+            }
+
+            const new_comp = component_arrays[name][component_arrays[name].length-1];
+            new_comp._id = entity_counter;
+            result_components.push(new_comp);
+        }
     }
 
     component_cache = {};
+
+    prerunEntitySystems(result_components);
 
     return {
         id: entity_counter++,
@@ -53,7 +104,7 @@ export function queryEntities<T extends ClassType[]>(...args: [...T]): { [K in k
 }
 
 export function queryEntitiesNames(...names: string[]) {
-    if (names.length == 1) return [component_arrays[names[0]] ?? []];
+    if (names.length == 1) return [component_arrays[names[0]].filter(c => c._id >= 0) ?? []];
 
     const key = names.toSorted().join("|");
 
@@ -62,7 +113,7 @@ export function queryEntitiesNames(...names: string[]) {
         return names.map(name => cache[name]);
     }
 
-    const all_comps = names.map(name => component_arrays[name] ?? null);
+    const all_comps = names.map(name => component_arrays[name].filter(c => c._id >= 0) ?? null);
 
     if (all_comps.includes(null)) return blankComponentQuery(names);
 
@@ -122,8 +173,18 @@ export function deleteEntity(id: number) {
         
         const index = components.findIndex(({ _id })=> id == _id);
         if (index >= 0) {
-            const [removed] = components.splice(index, 1);
-            removed.$onDestroy();
+            const comp = components[index];
+            const name = Object.getPrototypeOf(comp).constructor.name;
+            // const [removed] = components.splice(index, 1);
+            // removed.$onDestroy();
+
+            comp.$onDestroy();
+
+            if (component_pools.has(name)) {
+                comp._id = -1;
+            } else {
+                components.splice(index, 1);
+            }
         }
     }
 

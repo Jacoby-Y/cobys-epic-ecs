@@ -4,13 +4,15 @@
   "version": "1.0.0",
   "description": "Monorepo for cobys-epic-ecs",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "dev": "nodemon --ext ts --exec 'clear && tsx ./src/test.ts'"
   },
   "keywords": [],
   "author": "Jacoby-Y",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "nodemon": "^3.1.9",
+    "typescript": "^5.8.2"
   },
   "dependencies": {
     "pixi.js": "7.4.0"
