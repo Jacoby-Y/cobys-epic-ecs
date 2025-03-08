@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "cobys-epic-ecs",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A barebones ECS made to work with cobys-epic-engine",
   "main": "index.js",
   "exports": {
