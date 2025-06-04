@@ -30,13 +30,12 @@ export class Camera {
 
     setOffset(offset: Position) {
         this.offset = offset;
+        console.log(offset, app.view.width, app.view.height)
     }
 
     getOffset(pos: Position): [number, number] {
-        // Must divide by 32 (aka: # / 16 / 2) because scale is 16 and we also need the center point
-
-        const offx = app.view.width + (pos.x - this.target.x) - this.offset.x;
-        const offy = app.view.height + (pos.y - this.target.y) - this.offset.y;
+        const offx = (pos.x - this.target.x) - this.offset.x;
+        const offy = (pos.y - this.target.y) - this.offset.y;
 
         return [offx, offy];
     }

@@ -104,7 +104,7 @@ export function queryEntities<T extends ClassType[]>(...args: [...T]): { [K in k
 }
 
 export function queryEntitiesNames(...names: string[]) {
-    if (names.length == 1) return [component_arrays[names[0]].filter(c => c._id >= 0) ?? []];
+    if (names.length == 1) return [component_arrays[names[0]]?.filter(c => c._id >= 0) ?? []];
 
     const key = names.toSorted().join("|");
 
@@ -113,7 +113,7 @@ export function queryEntitiesNames(...names: string[]) {
         return names.map(name => cache[name]);
     }
 
-    const all_comps = names.map(name => component_arrays[name].filter(c => c._id >= 0) ?? null);
+    const all_comps = names.map(name => component_arrays[name]?.filter(c => c._id >= 0) ?? null);
 
     if (all_comps.includes(null)) return blankComponentQuery(names);
 

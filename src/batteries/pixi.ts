@@ -5,6 +5,10 @@ import { Camera } from "./camera";
 
 export default PIXI;
 
+PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL2;
+// PIXI.BatchRenderer.defaultMaxTextures = 16;
+PIXI.Ticker.shared.autoStart = false;
+
 export let app: PIXI.Application;
 export let camera = new Camera();
 export let delta_time = 16;
@@ -16,9 +20,9 @@ export function createApp(width: number, height: number, background: PIXI.ColorS
         width,
         height,
         background,
+        autoDensity: true,
         ...(performance ? {
             antialias: false,
-            autoDensity: false,
             preserveDrawingBuffer: false,
             resolution: 1,
             powerPreference: "low-power",
@@ -30,6 +34,15 @@ export function createApp(width: number, height: number, background: PIXI.ColorS
     if (performance) PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST;
 
     return app;
+}
+
+export const view_size = {
+    get width() {
+        return app.renderer.width / app.renderer.resolution;
+    },
+    get height() {
+        return app.renderer.height / app.renderer.resolution;
+    },
 }
 
 
@@ -170,8 +183,12 @@ export function resetStage() {
 }
 
 export function setResolution(res = 1) {
+    const width = app.renderer.width / app.renderer.resolution;
+    const height = app.renderer.height / app.renderer.resolution;
+    
+    // Update the resolution
     app.renderer.resolution = res;
-    app.renderer.view.style.width = `${1920}px`;
-    app.renderer.view.style.height = `${1080}px`;
-    app.renderer.resize(1920, 1080);
+    
+    // With autoDensity, just need to resize to maintain the same logical dimensions
+    app.renderer.resize(width, height);
 }

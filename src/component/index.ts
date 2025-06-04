@@ -1,3 +1,4 @@
+import { delta_time } from "../batteries";
 import { deleteEntity } from "../entity";
 
 export default class Component {
@@ -65,8 +66,8 @@ export class Velocity extends Component {
     }
 
     movePosition(pos: Position) {
-        pos.x += this.x;
-        pos.y += this.y;
+        pos.x += this.x * (delta_time/16);
+        pos.y += this.y * (delta_time/16);
         this.x *= this.drag;
         this.y *= this.drag;
 
@@ -76,6 +77,24 @@ export class Velocity extends Component {
     addForce(dir: number, vel: number) {
         this.x = Math.cos(dir) * vel;
         this.y = Math.sin(dir) * vel;
+
+        return this;
+    }
+
+    getAngle() {
+        return Math.atan2(this.y, this.x);
+    }
+
+    getSpeed() {
+        return Math.sqrt(this.x ** 2 + this.y ** 2);
+    }
+
+    shiftVelocityAngle(shift = 0.1) {
+        const ang = this.getAngle() + shift;
+        const speed = this.getSpeed();
+
+        this.x = Math.cos(ang) * speed;
+        this.y = Math.sin(ang) * speed;
 
         return this;
     }

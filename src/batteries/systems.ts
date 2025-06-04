@@ -11,7 +11,7 @@ export function initSystems() {
     
     addSystem([Position, Draw], (pos: Position, draw: Draw)=>{
         const [x, y] = camera.getOffset(pos);
-    
+        // console.log(pos.x, pos.y, x, y)
         draw.setPosition(x, y);
     });
 
