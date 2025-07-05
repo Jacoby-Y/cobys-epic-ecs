@@ -6,7 +6,7 @@ import { Draw, DrawGroup, camera, delta_time } from "./pixi";
 
 export function initSystems() {
     addSystem([Position, Velocity], (pos: Position, vel: Velocity)=>{
-        vel.movePosition(pos);
+        vel.movePosition(pos, delta_time/16);
     });
     
     addSystem([Position, Draw], (pos: Position, draw: Draw)=>{
@@ -23,8 +23,8 @@ export function initSystems() {
     });
     
     addSystem([Position, Controlled], (pos: Position, con: Controlled)=>{
-        pos.x += con.move_x * con.speed * delta_time;
-        pos.y += con.move_y * con.speed * delta_time;
+        pos.x += con.move_x * con.speed * (delta_time/16);
+        pos.y += con.move_y * con.speed * (delta_time/16);
     });
     
     addSystem([Controlled], (con: Controlled)=>{
@@ -50,6 +50,7 @@ export function initSystems() {
     });
 
     addSystem([Draw, Controlled], (draw: Draw, con: Controlled)=>{
+        if (con.flip_horz !== true) return;
         if (con.move_x < 0) {
             draw.sprite.scale.x = -1;
         }

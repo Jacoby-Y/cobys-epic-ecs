@@ -1,4 +1,3 @@
-import { delta_time } from "../batteries";
 import { deleteEntity } from "../entity";
 
 export default class Component {
@@ -65,9 +64,9 @@ export class Velocity extends Component {
         super();
     }
 
-    movePosition(pos: Position) {
-        pos.x += this.x * (delta_time/16);
-        pos.y += this.y * (delta_time/16);
+    movePosition(pos: Position, delta = 1) {
+        pos.x += this.x;
+        pos.y += this.y;
         this.x *= this.drag;
         this.y *= this.drag;
 
@@ -145,6 +144,7 @@ export class Controlled extends Component {
     constructor(
         public speed: number,
         public update?: Function,
+        public flip_horz?: boolean,
     ) {
         super();
     }

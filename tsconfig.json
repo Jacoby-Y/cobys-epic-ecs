@@ -13,6 +13,7 @@
     "outDir": "./pkg",
     "declaration": true,
     "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false
     // "allowJs": true
   },
   "include": ["src/**/*.ts"],
